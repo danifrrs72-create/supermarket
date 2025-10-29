@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Online Modern</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Leaflet CSS untuk peta -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Menghubungkan ke file CSS eksternal -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4">
+            <!-- Top Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl font-bold text-gray-800">TokoKu</h1>
+                <nav class="flex items-center space-x-4">
+                    <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">Tentang Kami</a>
+                    <a href="#location" class="text-gray-600 hover:text-blue-600 transition-colors">Lokasi</a>
+                    <div class="relative cursor-pointer" id="header-cart">
+                        <i class="fas fa-shopping-cart text-gray-600 text-2xl"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </div>
+                </nav>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="relative">
+                <div class="flex space-x-2">
+                    <div class="flex-1 relative">
+                        <input type="text" id="search-input" placeholder="Cari produk..." 
+                               class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button id="search-btn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Cari
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 md:p-8">
+        <!-- Categories -->
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Kategori Produk</h2>
+            <div id="categories" class="flex flex-wrap gap-2">
+                <!-- Kategori akan dimuat oleh JavaScript -->
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="text-center py-10">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+            <p class="mt-2 text-gray-600">Memuat produk...</p>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Kartu produk akan dimasukkan di sini oleh JavaScript -->
+        </div>
+
+        <!-- No Products Message -->
+        <div id="no-products" class="hidden text-center py-10">
+            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Produk tidak ditemukan</h3>
+            <p class="text-gray-500">Coba gunakan kata kunci lain atau lihat kategori lainnya.</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="hidden text-center bg-red-100 text-red-700 p-4 rounded-lg">
+            <p>Gagal memuat produk. Silakan coba lagi nanti.</p>
+        </div>
+    </main>
+
+    <!-- About and Location Section -->
+    <section id="about-location" class="bg-white py-12">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- About Section -->
+                <div id="about" class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Tentang Kami</h2>
+                    <p class="text-gray-600 mb-4">
+                        TokoKu adalah toko online terpercaya yang menyediakan berbagai produk berkualitas dengan harga terjangkau. 
+                        Kami berkomitmen untuk memberikan pengalaman berbelanja yang menyenangkan dan memuaskan bagi setiap pelanggan.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span class="text-gray-600">Produk berkualitas tinggi</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span class="text-gray-600">Pengiriman cepat</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span class="text-gray-600">Layanan pelanggan 24/7</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            <span class="text-gray-600">Garansi uang kembali</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div id="location" class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Lokasi Kami</h2>
+                    <div id="map" class="h-64 rounded-lg mb-4"></div>
+                    <div class="text-gray-600">
+                        <p class="mb-2"><i class="fas fa-map-marker-alt text-red-500 mr-2"></i> Jl. Contoh No. 123, Jakarta</p>
+                        <p class="mb-2"><i class="fas fa-phone text-blue-500 mr-2"></i> +62 812-3456-7890</p>
+                        <p class="mb-2"><i class="fas fa-envelope text-yellow-500 mr-2"></i> info@tokoku.com</p>
+                        <p><i class="fas fa-clock text-green-500 mr-2"></i> Buka: Senin - Minggu, 08:00 - 22:00 WIB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div class="md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4">TokoKu</h3>
+                    <p class="text-gray-300 mb-4">
+                        Toko online terpercaya yang menyediakan berbagai produk berkualitas dengan harga terjangkau. 
+                        Belanja mudah, aman, dan nyaman hanya di TokoKu.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Tautan Cepat</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Beranda</a></li>
+                        <li><a href="#about" class="text-gray-300 hover:text-white transition-colors">Tentang Kami</a></li>
+                        <li><a href="#location" class="text-gray-300 hover:text-white transition-colors">Lokasi</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Katalog Produk</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Kontak</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Kontak</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-red-400 mr-3"></i>
+                            <span class="text-gray-300">Jl. Contoh No. 123, Jakarta</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-green-400 mr-3"></i>
+                            <span class="text-gray-300">+62 812-3456-7890</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-yellow-400 mr-3"></i>
+                            <span class="text-gray-300">info@tokoku.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-blue-400 mr-3"></i>
+                            <span class="text-gray-300">08:00 - 22:00 WIB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2024 TokoKu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-4 sm:p-6">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center pb-3 border-b">
+                    <h3 class="text-xl font-semibold text-gray-900" id="modal-title">Detail Produk</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                <!-- Modal Body -->
+                <div class="mt-4 md:flex md:space-x-6">
+                    <div class="md:w-1/2 flex-shrink-0">
+                        <img id="modal-image" src="https://placehold.co/400x400" alt="Product Image" class="w-full h-auto object-contain rounded-lg max-h-80">
+                    </div>
+                    <div class="mt-4 md:mt-0 md:w-1/2">
+                        <span id="modal-category" class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Kategori</span>
+                        <h4 class="text-2xl font-bold text-gray-800 my-2" id="modal-product-name">Nama Produk</h4>
+                        <p class="text-3xl font-light text-blue-600 mb-4" id="modal-price">Rp 0</p>
+                        <p class="text-gray-600 text-sm leading-relaxed" id="modal-description">Deskripsi produk akan muncul di sini.</p>
+                        <div class="mt-6 flex flex-col space-y-3">
+                            <button id="modal-add-to-cart" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fas fa-cart-plus"></i>
+                                <span>Tambah ke Keranjang</span>
+                            </button>
+                            <button id="modal-order-now" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>Pesan Sekarang</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-4 sm:p-6">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center pb-3 border-b">
+                    <h3 class="text-xl font-semibold text-gray-900">Keranjang Belanja</h3>
+                    <button id="closeCartModalBtn" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Cart Items -->
+                <div id="cart-items" class="mt-4 max-h-96 overflow-y-auto space-y-4">
+                    <!-- Items akan dimasukkan di sini -->
+                </div>
+                
+                <!-- Cart Summary -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span id="cart-subtotal" class="font-medium">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Ongkos Kirim:</span>
+                            <span id="cart-shipping" class="font-medium">Rp 10.000</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-semibold">
+                            <span>Total:</span>
+                            <span id="cart-total" class="text-blue-600">Rp 0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer Info Form -->
+                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-semibold text-gray-800 mb-3">Informasi Pembeli</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+                                <input type="text" id="customer-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama lengkap" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp *</label>
+                                <input type="tel" id="customer-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 081234567890" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Pengiriman *</label>
+                                <textarea id="customer-address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan alamat lengkap pengiriman" required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Catatan (Opsional)</label>
+                                <textarea id="customer-notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Catatan tambahan untuk pesanan"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Actions -->
+                    <div class="mt-6 flex space-x-3">
+                        <button id="clear-cart-btn" class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                            Kosongkan Keranjang
+                        </button>
+                        <button id="checkout-btn" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Checkout via WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50"></div>
+
+    <!-- Floating Cart Button -->
+    <button id="floating-cart-btn" class="fixed bottom-5 left-5 bg-blue-600 text-white p-4 rounded-full shadow-lg z-40 hover:bg-blue-700 transition-colors">
+        <i class="fas fa-shopping-cart text-xl"></i>
+        <span id="floating-cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+    </button>
+
+    <!-- Leaflet JS untuk peta -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Menghubungkan ke file JavaScript eksternal (defer memastikan HTML dimuat lebih dulu) -->
+    <script src="script.js" defer></script>
+</body>
+</html>
